@@ -27,6 +27,7 @@ The Siloft Data library is an easy-to-use Java library which handles reading and
 
 The following requirements are attached to this library:
   - Library works only on Windows, Linux, and Mac OS systems
+  - Java 8 (or higher), standard (SE)
 
 ## <a name='maven_install'>Maven install</a>
 

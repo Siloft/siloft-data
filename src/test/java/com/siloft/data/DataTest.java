@@ -29,6 +29,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Verifies whether the <code>Data</code> class is working properly.
@@ -152,6 +154,7 @@ public class DataTest {
         assert options.aDouble == 2.3456d;
         assert options.aBoolean == true;
         assert options.aString.equals("Test");
+        assert options.getUnknownFields().size() == 0;
         assert options.getFile().getAbsolutePath().equals(
                 System.getProperty("user.dir") + File.separator + "Options");
         assert options.getDirectory().getAbsolutePath()
@@ -226,6 +229,7 @@ public class DataTest {
         assert options.aDouble == 2.3456d;
         assert options.aBoolean == true;
         assert options.aString.equals("Test");
+        assert options.getUnknownFields().size() == 0;
 
         options.aByte = 0;
         options.aShort = 0;
@@ -243,6 +247,7 @@ public class DataTest {
         assert options.aDouble == 0d;
         assert options.aBoolean == false;
         assert options.aString.equals("");
+        assert options.getUnknownFields().size() == 0;
 
         options.setDefaults();
         assert options.aByte == 1;
@@ -253,6 +258,7 @@ public class DataTest {
         assert options.aDouble == 2.3456d;
         assert options.aBoolean == true;
         assert options.aString.equals("Test");
+        assert options.getUnknownFields().size() == 0;
     }
 
     /**
@@ -275,6 +281,7 @@ public class DataTest {
         assert options1.aDouble == 2.3456d;
         assert options1.aBoolean == true;
         assert options1.aString.equals("Test");
+        assert options1.getUnknownFields().size() == 0;
         assert new File(System.getProperty("user.dir"), "Options")
                 .isFile() == true;
 
@@ -306,6 +313,76 @@ public class DataTest {
         assert options2.aDouble == 1.2345d;
         assert options2.aBoolean == false;
         assert options2.aString.equals("Tryout");
+        assert options2.getUnknownFields().size() == 0;
+    }
+
+    /**
+     * Test loading and saving with unknown fields.
+     */
+    @Test
+    public void testLoadingSavingWithUnknown() {
+        String data = "aByte=2\nfirstUnknown=ab\nsecondUnknown=1";
+        File file = new File(System.getProperty("user.dir"), "Options");
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+            writer.write(data);
+            writer.close();
+        } catch (IOException exception) {
+            // Ignore
+        }
+
+        Options options1 = new Options();
+        try {
+            options1.load();
+        } catch (IOException exception) {
+            assert false;
+        }
+        assert options1.isLoaded() == true;
+        assert options1.aByte == 2;
+        assert options1.aShort == 2;
+        assert options1.aInt == 3;
+        assert options1.aLong == 4;
+        assert options1.aFloat == 1.2345f;
+        assert options1.aDouble == 2.3456d;
+        assert options1.aBoolean == true;
+        assert options1.aString.equals("Test");
+        assert options1.getUnknownFields().size() == 2;
+        assert options1.getUnknownField("firstUnknown").equals("ab") == true;
+        assert options1.getUnknownField("secondUnknown").equals("1") == true;
+        assert new File(System.getProperty("user.dir"), "Options")
+                .isFile() == true;
+
+        Map<String, String> unknownFields = new HashMap<String, String>();
+        unknownFields.put("thirdUnknown", "Tryout");
+        options1.setUnknownFields(unknownFields);
+        options1.setUnknownField("fourthUnknown", "12");
+        try {
+            options1.save();
+        } catch (IOException exception1) {
+            assert false;
+        }
+
+        Options options2 = new Options();
+        try {
+            options2.load();
+        } catch (IOException exception) {
+            assert false;
+        }
+        assert options2.aByte == 2;
+        assert options2.aShort == 2;
+        assert options2.aInt == 3;
+        assert options2.aLong == 4;
+        assert options2.aFloat == 1.2345f;
+        assert options2.aDouble == 2.3456d;
+        assert options2.aBoolean == true;
+        assert options2.aString.equals("Test");
+        assert options2.getUnknownFields().size() == 2;
+        assert options2.getUnknownField("thirdUnknown")
+                .equals("Tryout") == true;
+        assert options2.getUnknownField("fourthUnknown").equals("12") == true;
+        assert new File(System.getProperty("user.dir"), "Options")
+                .isFile() == true;
     }
 
     /**
@@ -338,5 +415,6 @@ public class DataTest {
         assert options.aDouble == 2.3456d;
         assert options.aBoolean == true;
         assert options.aString.equals("a=b");
+        assert options.getUnknownFields().size() == 0;
     }
 }

@@ -85,6 +85,9 @@ class Data {
     /** The default data key-value pairs. */
     private final Map<String, Object> defaultData;
 
+    /** The unknown data key-value pairs. */
+    private final Map<String, String> unknownData;
+
     /** The file for the data. */
     private final File file;
 
@@ -102,6 +105,7 @@ class Data {
      */
     protected Data(String path) {
         defaultData = new HashMap<String, Object>();
+        unknownData = new HashMap<String, String>();
         file = new File(path, this.getClass().getSimpleName());
         validateFields();
     }
@@ -151,6 +155,8 @@ class Data {
                 } else {
                     field.set(this, option[1].replace("\\n", "\n"));
                 }
+            } catch (NoSuchFieldException e) {
+                unknownData.put(option[0], option[1]);
             } catch (Exception e) {
                 // Ignore
             }
@@ -209,6 +215,15 @@ class Data {
             }
         }
 
+        unknownData.forEach((name, value) -> {
+            try {
+                bufferedWriter.write(name + "=" + value);
+                bufferedWriter.newLine();
+            } catch (Exception e) {
+                // Should not happen
+            }
+        });
+
         bufferedWriter.close();
         fileWriter.close();
     }
@@ -252,6 +267,29 @@ class Data {
     }
 
     /**
+     * Set the unknown fields of this data.
+     *
+     * @param fields
+     *            the unknown fields
+     */
+    public void setUnknownFields(Map<String, String> fields) {
+        unknownData.clear();
+        unknownData.putAll(fields);
+    }
+
+    /**
+     * Set an unknown field of this data.
+     *
+     * @param name
+     *            the unknown field name
+     * @param value
+     *            the unknown field value
+     */
+    public void setUnknownField(String name, String value) {
+        unknownData.put(name, value);
+    }
+
+    /**
      * Returns the file of this data.
      *
      * @return the file
@@ -267,6 +305,27 @@ class Data {
      */
     public File getDirectory() {
         return file.getParentFile();
+    }
+
+    /**
+     * Returns the unknown fields of this data.
+     *
+     * @return the unknown fields
+     */
+    public Map<String, String> getUnknownFields() {
+        return unknownData;
+    }
+
+    /**
+     * Returns the unknown field value of this data.
+     *
+     * @param name
+     *            the unknown field name
+     *
+     * @return the unknown field value, or <code>null</code>
+     */
+    public String getUnknownField(String name) {
+        return unknownData.get(name);
     }
 
     /**

@@ -9,7 +9,7 @@
   </parent>
   <groupId>com.siloft</groupId>
   <artifactId>siloft-data</artifactId>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>0.8.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>siloft-data</name>
   <description>A Java library for user data and program data</description>

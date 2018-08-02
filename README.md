@@ -40,7 +40,7 @@ To use Maven, add the following lines to your pom.xml file:
     <dependency>
       <groupId>com.siloft</groupId>
       <artifactId>siloft-data</artifactId>
-      <version>0.8.0</version>
+      <version>0.8.1</version>
     </dependency>
   </dependencies>
 </project>
